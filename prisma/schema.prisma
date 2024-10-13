@@ -1,0 +1,65 @@
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Login {
+  id       String @id @default(uuid())
+  login    String @unique
+  password String
+  @@map("login")
+}
+
+model Producer {
+  id        String   @id @default(uuid())
+  cpf       String   @unique
+  name      String
+  city      String
+  state     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  farms     Farm[]
+  @@map("producer")
+}
+
+model Farm {
+  id               String   @id @default(uuid())
+  producerId       String
+  cnpj             String   @unique
+  name             String
+  city             String
+  state            String
+  totalArea        Float
+  agriculturalArea Float
+  vegetationArea   Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  deletedAt        DateTime?
+  producer         Producer @relation(fields: [producerId], references: [id])
+  cropsPlanted     CropsPlanted[]
+  @@map("farm")
+}
+
+model CropsPlanted {
+  id        String @id @default(uuid())
+  farmId    String
+  crop      CROPS
+  createdAt DateTime @default(now())
+  farm      Farm @relation(fields: [farmId], references: [id])
+  @@map("crops_planted")
+}
+
+enum CROPS {
+  SOYBEANS
+  CORN
+  COTTON
+  COFFEE
+  SUGAR_CANE
+}
